@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>FM Test Live </title>
+    <style>
+        body, html {
+            height: 100%;
+            margin: 0;
+            font-family: Arial, sans-serif;
+        }
+        .header {
+            background-color: #000000;
+            color: white;
+            text-align: center;
+            padding: 20px;
+            font-size: 30px;
+        }
+        .center-image {
+            display: flex;
+            justify-content: flex;
+            align-items: center;
+            height: 80%;
+        }
+        img {
+            max-width: 100%;
+            height: auto;
+            border: 5px solid #555;
+        }
+        .watson-script {
+            margin-top: 20px;
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="header">FM Test-LIVE</div>
+
+    <div class="center-image">
+        <img src=3.jpg alt="">
+    </div>
+
+    <div class="watson-script">
+        <!-- Place your Watson script here -->
+<script>
+
+function disable_typing_on_options(event, instance) {
+        if (event.data.output) {
+            event.data.output.generic.forEach(item => {
+                if (item.options) {
+                    instance.updateAssistantInputFieldVisibility(false);
+                    return;
+                }
+            });
+        }
+
+    }
+
+    function enable_typing(event, instance) {
+        instance.updateAssistantInputFieldVisibility(true)
+    }
+
+
+    window.watsonAssistantChatOptions = {
+    integrationID: "80f14469-37a1-43dc-a1b9-605ef0830cae", // The ID of this integration.
+    region: "us-south", // The region your integration is hosted in.
+    serviceInstanceID: "0bc4a625-54d2-45cd-a69d-81382cf3cf6d", // The ID of your service instance.
+
+    showRestartButton: true,
+    onLoad: async (instance) => {
+        instance.on({ type: 'pre:receive', handler: disable_typing_on_options });
+        instance.on({ type: 'send', handler: enable_typing });
+        await instance.render(); }
+  };
+  setTimeout(function(){
+    const t=document.createElement('script');
+    t.src="https://web-chat.global.assistant.watson.appdomain.cloud/versions/" + (window.watsonAssistantChatOptions.clientVersion || 'latest') + "/WatsonAssistantChatEntry.js";
+    document.head.appendChild(t);
+  });
+</script>
+    </div>
+
+</body>
+</html>

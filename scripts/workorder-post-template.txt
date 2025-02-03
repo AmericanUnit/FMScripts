@@ -1,0 +1,27 @@
+{
+    "externalWorkOrderId": {triExternalTaskIdTX},
+    "requestedBy": {triExternalTaskIdTX},
+    "requestedPhone": {triExternalTaskIdTX},
+    "requestedEmail": {triExternalTaskIdTX},
+    "requestedDate": {triExternalTaskIdTX},
+    "workType": {triExternalTaskIdTX},
+    "problemType": {triExternalTaskIdTX},
+    "type": "CM",
+    "priority": 1,
+    "locationDetails": {
+        "propertyCode": "36072",
+        "phone": "string",
+        "fax": "string",
+        "style": "",
+        "leedDesignation": "",
+        "emsDesignation": "",
+        "shutterControl": "",
+        "shop": "",
+        "address": "",
+        "city": "Queens",
+        "state": "NY",
+        "zip": "11429"
+    },
+    "workOrderDescription": "Test Description",
+    "additionalInstructions": "None"
+}

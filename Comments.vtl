@@ -1,0 +1,35 @@
+<soap:Envelope xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:soapenc="http://schemas.xmlsoap.org/soap/encoding/" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+<soap:Header></soap:Header>
+<soap:Body>
+    <n1:synchronousSendAndReceive xmlns:n1="http://irep.verizon.com/ws">
+        <n1:synchronousRequest>
+            <n1:DestinationBB>VREPAIRTM_SIT2_NJ</n1:DestinationBB>
+            <n1:ContractId>XVREE000</n1:ContractId>
+            <n1:Paired>false</n1:Paired>
+            <n1:Payload><![CDATA[<?xml version='1.0'?>
+                    <!DOCTYPE request SYSTEM "vrgireq.dtd">
+                    <request name= 'RemarkRequest' level='1' Occurs='1,1'>
+                    <field name="ApplicationID">
+                        <value>98</value>
+                    </field>
+                    <field name="StateCode">
+                        <value>$cstVRepairIdTX.substring(0, 2)</value>
+                    </field>
+                    <field name="UserId">
+                        <value>tririga</value>
+                    </field>
+                    <field name="TroubleReportNum">
+                        <value>$cstVRepairIdTX</value>
+                    </field>
+                    <request name ='BulkRemark' level ='2' Occurs='1,N'>
+                    <field name="ActivityFunctionCode">
+                        <value>$cstEventLogTypeTX</value>
+                    </field>
+                    <field name="BulkRemark">
+                        <value>$esc.xml($triCommentTX)</value>
+                    </field>
+                    </request></request>]]></n1:Payload>
+        </n1:synchronousRequest>
+    </n1:synchronousSendAndReceive>
+</soap:Body>
+</soap:Envelope>

@@ -1,0 +1,1653 @@
+openapi: 3.0.1
+info:
+  title: VZ FM Vendor Integrations
+  description: >-
+    VZ FM Vendor Integrations.  `Tririga basic-auth` can be used to test
+    TRIRIGA_INBOUND paths.
+            **Changelog**  is available at [http://vz-google-drive](https://docs.google.com/spreadsheets/d/12JYHbmebtK7FS3UNq2PLDTCrbVc6M_ThblfJlhVouS0/edit?usp=sharing). Please note **date-time** values have a notation as defined by [RFC 3339, section 5.6](https://xml2rfc.tools.ietf.org/public/rfc/html/rfc3339.html#rfc.section.5.6)
+  version: 1.8.5
+externalDocs:  
+  description: Find out more about the integrations
+  url: 'https://drive.google.com/drive/u/2/folders/1J6CyhSr56n_MeTJF69dEw5VLtyDu6u85'
+servers:
+  - url: 'https://verizon-stagela.tririga.com/html/en/default/rest/FMIntegrations/v1'
+  - url: 'https://verizon-dev2.tririga.com/html/en/default/rest/FMIntegrations/v1'
+  - url: 'https://verizon.tririga.com/html/en/default/rest/FMIntegrations/v1'
+
+tags:
+  - name: Work Order
+    description: FM Work Orders
+  - name: API Status
+    description: System Health Check
+paths:
+  /workOrder:
+    post:
+      summary: TRIRIGA_OUTBOUND - Create a new Work Order
+      description: ''
+      operationId: wo-create
+      requestBody:
+        description: Create a new Work Order
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/WorkOrder'
+      responses:
+        '200':
+          description: Successful Work Order Creation operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/WorkOrderResponse'
+        '400':
+          description: Validation exception
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+      tags:
+        - Work Order
+      security:
+        - tririgaBasicAuth: []
+        
+  '/workOrder/{workOrderId}':
+    put:
+      summary: TRIRIGA_OUTBOUND - Update an existing Work Order
+      description: ''
+      operationId: wo-update
+      parameters:
+        - name: workOrderId
+          in: path
+          description: ID of Work Order to update
+          required: true
+          schema:
+            type: string
+      requestBody:
+        description: Update existing Work Order
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/WorkOrder'
+      responses:
+        '200':
+          description: Work Order Updated Successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/WorkOrderResponse'
+
+        '404':
+          description: Work Order not found
+          content: {}
+        '400':
+          description: Validation exception
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+      tags:
+        - Work Order
+      security:
+        - tririgaBasicAuth: []
+        
+  '/workOrder/{workOrderId}/uploadImage':
+    post:
+      tags:
+        - Work Order
+      summary: TRIRIGA_OUTBOUND - Upload an image on to the Work Order
+      operationId: wo-image-upload
+      parameters:
+        - name: workOrderId
+          in: path
+          description: ID of Work Order to update
+          required: true
+          schema:
+            type: string
+      requestBody:
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                description:
+                  description: Optional description of the image being uploaded
+                  type: string
+                  maxLength: 1000
+                image:
+                  type: string
+                  format: binary
+                  description: Image depicting the underlying problem which could help the technician address it.
+                externalWorkOrderId:
+                  type: string
+                  description: Unique ID of Work Order in Tririga                  
+              required: 
+                - image
+
+      responses:
+        '200':
+          description: Image Uploaded Succesfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/WorkOrderResponse'
+
+        '404':
+          description: Work Order not found
+          content: {}
+        '400':
+          description: Validation exception
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+      security:
+        - tririgaBasicAuth: []
+ 
+ 
+  '/workOrder/{workOrderId}/logNotes':
+    put:
+      tags:
+        - Work Order
+      summary: TRIRIGA_OUTBOUND - Add work notes on the Work Order
+      operationId: wo-log-notes
+      parameters:
+        - name: workOrderId
+          in: path
+          description: ID of Work Order to update
+          required: true
+          schema:
+            type: string
+
+      requestBody:
+        
+        content:
+          application/x-www-form-urlencoded:
+            schema:
+              type: object
+              properties:
+                notes:
+                  type: string
+                  maxLength: 1000
+                  description: Work Notes/Description
+                externalWorkOrderId:
+                  type: string
+                  description: Unique ID of Work Order in Tririga
+              required: 
+                - notes
+ 
+      responses:
+        '200':
+          description: Work Order Updated Successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/WorkOrderResponse'
+
+        '404':
+          description: Work Order not found
+          content: {}
+        '400':
+          description: Validation exception
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+      security:
+        - tririgaBasicAuth: []
+  '/workOrder/{workOrderId}/statusUpdate':
+    put:
+      tags:
+        - Work Order
+      summary: TRIRIGA_OUTBOUND - Update Work Order Statuses
+      operationId: wo-status-update
+      parameters:
+        - name: workOrderId
+          in: path
+          description: ID of Work Order to update
+          required: true
+          schema:
+            type: string
+
+      requestBody:
+        content:
+          application/x-www-form-urlencoded:
+            schema:
+              type: object
+              properties:
+                status:
+                  description: Work Order Status
+                  type: string
+                  enum:
+                  - REOPENED
+                  - UNASSIGNED
+                  - CANCELLED
+                  - COMPLETED
+
+                
+                statusChangeTimestamp:
+                  description: Timestamp of status-change on the work order
+                  type: string
+                  format: date-time
+
+                reason:
+                  description: Status Change Reason/Comments
+                  type: string
+                  maxLength: 200
+                externalWorkOrderId:
+                  type: string
+                  description: Unique ID of Work Order in Tririga
+              required:
+                - status
+                - statusChangeTimestamp
+                - reason
+
+      responses:
+        '200':
+          description: Work Order Updated Successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/WorkOrderResponse'
+
+        '404':
+          description: Work Order not found
+          content: {}
+        '400':
+          description: Validation exception
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+      security:
+        - tririgaBasicAuth: []
+
+  '/triWorkOrder/{triWorkOrderId}/uploadImage':
+    post:
+      tags:
+        - Work Order
+      summary: TRIRIGA_INBOUND - Upload an image on to the Work Order
+      operationId: tri-wo-image-upload
+      parameters:
+        - name: triWorkOrderId
+          in: path
+          description: ID of Work Order to update
+          required: true
+          schema:
+            type: string
+        
+      requestBody:
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                image:
+                  type: string
+                  format: binary
+                  description: Image depicting the underlying problem which could help the technician address it.
+                description:
+                  description: Optional description of the image being uploaded
+                  type: object
+                  maxLength: 1000
+              required: 
+                - image      
+      responses:
+        '200':
+          description: Image Uploaded Succesfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/WorkOrderResponse'
+
+        '404':
+          description: Work Order not found
+          content: {}
+        '400':
+          description: Validation exception
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+      security:
+        - tririgaBasicAuth: []
+ 
+  '/triWorkOrder/{triWorkOrderId}/logNotes':
+    put:
+      tags:
+        - Work Order
+      summary: TRIRIGA_INBOUND - Add work notes on the Work Order
+      operationId: tri-wo-log-notes
+      parameters:
+        - name: triWorkOrderId
+          in: path
+          description: ID of Work Order to update
+          required: true
+          schema:
+            type: string
+      requestBody:
+        content:
+          application/x-www-form-urlencoded:
+            schema:
+              type: object
+              properties:
+                notes:
+                  type: string
+                  maxLength: 1000
+                  description: Work Notes/Description
+                eventType:
+                  type: string
+                  description: Event Type - Can only be 'Service Order Avoidance'
+                  enum:
+                    - Service Order Avoidance
+              required: 
+                - notes
+ 
+      responses:
+        '200':
+          description: Work Order Notes Updated Successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/WorkOrderResponse'
+
+        '404':
+          description: Work Order not found
+          content: {}
+        '400':
+          description: Validation exception
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+      security:
+        - tririgaBasicAuth: []
+  '/triWorkOrder/{triWorkOrderId}/workOrderCompletion':
+    put:
+      tags:
+        - Work Order
+      summary: >-
+        TRIRIGA_INBOUND - Mark Work Order for completion by submitting the
+        relevant failure and solution codes
+      operationId: tri-wo-completion
+      parameters:
+        - name: triWorkOrderId
+          in: path
+          description: Tririga Work Order ID
+          required: true
+          schema:
+            type: string
+      requestBody:
+        content:
+          application/x-www-form-urlencoded:
+            schema:
+              type: object
+              properties:
+                externalWorkOrderId:
+                  type: string
+                  description: ID of Work Order in source system
+
+                solutionCode:
+                  type: string
+                  description: Solution Code also known as Repair Definition
+                  enum:
+                  - Adjusted Settings On Equipment
+                  - Adjusted Camera
+                  - Approved / Issued
+                  - Assigned Violation To Vendor
+                  - Cleaned Equipment
+                  - No Trouble Found
+                  - Paid Violation Fine
+                  - Power Hit
+                  - Processed Payment
+                  - Reconfigured NVR / DVR Settings
+                  - Referred To EUS
+                  - Refuted Violation
+                  - Reloaded Software
+                  - Repaired Device
+                  - Repaired Equipment
+                  - Repaired Panel
+                  - Replaced Batteries
+                  - Replaced Device
+                  - Replaced Equipment
+                  - Reported To It
+                  - Reset Equipment
+                  - Reset Power Feed
+                  - Reset Reader
+                  - Unapproved / Deined
+                  - Replaced Item
+                  - Repaired Item
+                  - Replaced Parts
+                  - Absorbed 
+                  - Training 
+                  - Absorbed 
+                  - Adjusted Camera
+                  - Approved / Issued
+                  - Assigned Violation To Vendor
+                  - Cleaned Equipment
+                  - No Trouble Found
+                  - Paid Violation Fine
+                  - Power Hit
+                  - Processed Payment
+                  - Reconfigured NVR / DVR Settings
+                  - Referred To EUS
+                  - Refuted Violation
+                  - Reloaded Software
+                  - Repaired Device
+                  - Repaired Equipment
+                  - Repaired Panel
+                  - Replaced Batteries
+                  - Replaced Device
+                  - Replaced Equipment
+                  - Reported To It
+                  - Reset Equipment
+                  - Reset Power Feed
+                  - Reset Reader
+                  - Unapproved / Deined
+                  - Adjusted Camera
+                  - Approved / Issued
+                  - Assigned Violation To Vendor
+                  - Cleaned Equipment
+                  - No Trouble Found
+                  - Paid Violation Fine
+                  - Power Hit
+                  - Processed Payment
+                  - Reconfigured NVR / DVR Settings
+                  - Referred To EUS
+                  - Refuted Violation
+                  - Reloaded Software
+                  - Repaired Device
+                  - Repaired Equipment
+                  - Repaired Panel
+                  - Replaced Batteries
+                  - Replaced Device
+                  - Replaced Equipment
+                  - Reported To It
+                  - Reset Equipment
+                  - Reset Power Feed
+                  - Reset Reader
+                  - Unapproved / Deined
+                  - Adjusted Camera
+                  - Approved / Issued
+                  - Assigned Violation To Vendor
+                  - Cleaned Equipment
+                  - No Trouble Found
+                  - Paid Violation Fine
+                  - Power Hit
+                  - Processed Payment
+                  - Reconfigured NVR / DVR Settings
+                  - Referred To EUS
+                  - Refuted Violation
+                  - Reloaded Software
+                  - Repaired Device
+                  - Repaired Equipment
+                  - Repaired Panel
+                  - Replaced Batteries
+                  - Replaced Device
+                  - Replaced Equipment
+                  - Reported To It
+                  - Reset Equipment
+                  - Reset Power Feed
+                  - Reset Reader
+                  - Unapproved / Deined
+                  - Adjusted Camera
+                  - Approved / Issued
+                  - Assigned Violation To Vendor
+                  - Cleaned Equipment
+                  - No Trouble Found
+                  - Paid Violation Fine
+                  - Power Hit
+                  - Processed Payment
+                  - Reconfigured NVR / DVR Settings
+                  - Referred To EUS
+                  - Refuted Violation
+                  - Reloaded Software
+                  - Repaired Device
+                  - Repaired Equipment
+                  - Repaired Panel
+                  - Replaced Batteries
+                  - Replaced Device
+                  - Replaced Equipment
+                  - Reported To It
+                  - Reset Equipment
+                  - Reset Power Feed
+                  - Reset Reader
+                  - Unapproved / Deined
+                  - Adjusted Camera
+                  - Approved / Issued
+                  - Assigned Violation To Vendor
+                  - Cleaned Equipment
+                  - No Trouble Found
+                  - Paid Violation Fine
+                  - Power Hit
+                  - Processed Payment
+                  - Reconfigured NVR / DVR Settings
+                  - Referred To EUS
+                  - Refuted Violation
+                  - Reloaded Software
+                  - Repaired Device
+                  - Repaired Equipment
+                  - Repaired Panel
+                  - Replaced Batteries
+                  - Replaced Device
+                  - Replaced Equipment
+                  - Reported To It
+                  - Reset Equipment
+                  - Reset Power Feed
+                  - Reset Reader
+                  - Unapproved / Deined
+                  - Adjusted Camera
+                  - Approved / Issued
+                  - Assigned Violation To Vendor
+                  - Cleaned Equipment
+                  - No Trouble Found
+                  - Paid Violation Fine
+                  - Power Hit
+                  - Processed Payment
+                  - Reconfigured NVR / DVR Settings
+                  - Referred To EUS
+                  - Refuted Violation
+                  - Reloaded Software
+                  - Repaired Device
+                  - Repaired Equipment
+                  - Repaired Panel
+                  - Replaced Batteries
+                  - Replaced Device
+                  - Replaced Equipment
+                  - Reported To It
+                  - Reset Equipment
+                  - Reset Power Feed
+                  - Reset Reader
+                  - Unapproved / Deined
+                  - Adjusted Camera
+                  - Approved / Issued
+                  - Assigned Violation To Vendor
+                  - Cleaned Equipment
+                  - No Trouble Found
+                  - Paid Violation Fine
+                  - Power Hit
+                  - Processed Payment
+                  - Reconfigured NVR / DVR Settings
+                  - Referred To EUS
+                  - Refuted Violation
+                  - Reloaded Software
+                  - Repaired Device
+                  - Repaired Equipment
+                  - Repaired Panel
+                  - Replaced Batteries
+                  - Replaced Device
+                  - Replaced Equipment
+                  - Reported To It
+                  - Reset Equipment
+                  - Reset Power Feed
+                  - Reset Reader
+                  - Unapproved / Deined
+                  - Absorbed 
+                  - Adjusted Camera
+                  - Approved / Issued
+                  - Assigned Violation To Vendor
+                  - Cleaned Equipment
+                  - No Trouble Found
+                  - Paid Violation Fine
+                  - Power Hit
+                  - Processed Payment
+                  - Reconfigured NVR / DVR Settings
+                  - Referred To EUS
+                  - Refuted Violation
+                  - Reloaded Software
+                  - Repaired Device
+                  - Repaired Equipment
+                  - Repaired Panel
+                  - Replaced Batteries
+                  - Replaced Device
+                  - Replaced Equipment
+                  - Reported To It
+                  - Reset Equipment
+                  - Reset Power Feed
+                  - Reset Reader
+                  - Unapproved / Deined
+                  - Adjusted Camera
+                  - Adjusted Settings On Equipment
+                  - Approved / Issued
+                  - Assigned Violation To Vendor
+                  - Cleaned Equipment
+                  - No Trouble Found
+                  - Paid Violation Fine
+                  - Power Hit
+                  - Processed Payment
+                  - Reconfigured NVR / DVR Settings
+                  - Referred To EUS
+                  - Refuted Violation
+                  - Reloaded Software
+                  - Repaired Device
+                  - Repaired Equipment
+                  - Repaired Panel
+                  - Replaced Batteries
+                  - Replaced Device
+                  - Replaced Equipment
+                  - Reported To It
+                  - Reset Equipment
+                  - Reset Power Feed
+                  - Reset Reader
+                  - Unapproved / Deined
+                  - Replaced Item
+                  - Repaired Item
+                  - Replaced Parts
+                  - Absorbed 
+                  - Absorbed 
+                  - Repaired Item
+                  - Replaced Item
+                  - Replaced Parts
+                  - Adjusted Camera
+                  - Approved / Issued
+                  - Assigned Violation To Vendor
+                  - Cleaned Equipment
+                  - No Trouble Found
+                  - Paid Violation Fine
+                  - Power Hit
+                  - Processed Payment
+                  - Reconfigured NVR / DVR Settings
+                  - Referred To EUS
+                  - Refuted Violation
+                  - Reloaded Software
+                  - Repaired Device
+                  - Repaired Equipment
+                  - Repaired Panel
+                  - Replaced Batteries
+                  - Replaced Device
+                  - Replaced Equipment
+                  - Reported To It
+                  - Reset Equipment
+                  - Reset Power Feed
+                  - Reset Reader
+                  - Unapproved / Deined
+                  - Installation
+                  - Replaced Item
+                  - Repaired Item
+                  - Replaced Parts
+                  - Absorbed 
+                  - Adjusted Camera
+                  - Approved / Issued
+                  - Assigned Violation To Vendor
+                  - Cleaned Equipment
+                  - No Trouble Found
+                  - Paid Violation Fine
+                  - Power Hit
+                  - Processed Payment
+                  - Reconfigured NVR / DVR Settings
+                  - Referred To EUS
+                  - Refuted Violation
+                  - Reloaded Software
+                  - Repaired Device
+                  - Repaired Equipment
+                  - Repaired Panel
+                  - Replaced Batteries
+                  - Replaced Device
+                  - Replaced Equipment
+                  - Reported To It
+                  - Reset Equipment
+                  - Reset Power Feed
+                  - Reset Reader
+                  - Unapproved / Deined
+                  - Adjusted Camera
+                  - Approved / Issued
+                  - Assigned Violation To Vendor
+                  - Cleaned Equipment
+                  - No Trouble Found
+                  - Paid Violation Fine
+                  - Power Hit
+                  - Processed Payment
+                  - Reconfigured NVR / DVR Settings
+                  - Referred To EUS
+                  - Refuted Violation
+                  - Reloaded Software
+                  - Repaired Device
+                  - Repaired Equipment
+                  - Repaired Panel
+                  - Replaced Batteries
+                  - Replaced Device
+                  - Replaced Equipment
+                  - Reported To It
+                  - Reset Equipment
+                  - Reset Power Feed
+                  - Reset Reader
+                  - Unapproved / Deined
+                  - Network Capacity Issues
+                  - Adjusted Camera
+                  - Approved / Issued
+                  - Assigned Violation To Vendor
+                  - Cleaned Equipment
+                  - No Trouble Found
+                  - Paid Violation Fine
+                  - Power Hit
+                  - Processed Payment
+                  - Reconfigured NVR / DVR Settings
+                  - Referred To EUS
+                  - Refuted Violation
+                  - Reloaded Software
+                  - Repaired Device
+                  - Repaired Equipment
+                  - Repaired Panel
+                  - Replaced Batteries
+                  - Replaced Device
+                  - Replaced Equipment
+                  - Reported To It
+                  - Reset Equipment
+                  - Reset Power Feed
+                  - Reset Reader
+                  - Unapproved / Deined
+                  - Adjusted Camera
+                  - Approved / Issued
+                  - Assigned Violation To Vendor
+                  - Cleaned Equipment
+                  - No Trouble Found
+                  - Paid Violation Fine
+                  - Power Hit
+                  - Processed Payment
+                  - Reconfigured NVR / DVR Settings
+                  - Referred To EUS
+                  - Refuted Violation
+                  - Reloaded Software
+                  - Repaired Device
+                  - Repaired Equipment
+                  - Repaired Panel
+                  - Replaced Batteries
+                  - Replaced Device
+                  - Replaced Equipment
+                  - Reported To It
+                  - Reset Equipment
+                  - Reset Power Feed
+                  - Reset Reader
+                  - Unapproved / Deined
+                  - Adjusted Camera
+                  - Approved / Issued
+                  - Assigned Violation To Vendor
+                  - Cleaned Equipment
+                  - No Trouble Found
+                  - Paid Violation Fine
+                  - Power Hit
+                  - Processed Payment
+                  - Reconfigured NVR / DVR Settings
+                  - Referred To EUS
+                  - Refuted Violation
+                  - Reloaded Software
+                  - Repaired Device
+                  - Repaired Equipment
+                  - Repaired Panel
+                  - Replaced Batteries
+                  - Replaced Device
+                  - Replaced Equipment
+                  - Reported To It
+                  - Reset Equipment
+                  - Reset Power Feed
+                  - Reset Reader
+                  - Unapproved / Deined
+                  - Adjusted Camera
+                  - Approved / Issued
+                  - Assigned Violation To Vendor
+                  - Cleaned Equipment
+                  - No Trouble Found
+                  - Paid Violation Fine
+                  - Power Hit
+                  - Processed Payment
+                  - Reconfigured NVR / DVR Settings
+                  - Referred To EUS
+                  - Refuted Violation
+                  - Reloaded Software
+                  - Repaired Device
+                  - Repaired Equipment
+                  - Repaired Panel
+                  - Replaced Batteries
+                  - Replaced Device
+                  - Replaced Equipment
+                  - Reported To It
+                  - Reset Equipment
+                  - Reset Power Feed
+                  - Reset Reader
+                  - Unapproved / Deined
+                  - PM Complete
+                  - PM Complete Deferred Incorrect Assignment
+                  - PM Complete Deferred Incorrect Frequency
+                  - PM Complete Deferred Incorrect Schedule
+                  - PM Not Complete - Equipment Out Of Season
+                  - PM Not Complete - Incliemnt Weather (I.E. Snow)
+                  - PM Not Complete - Manpower Issues
+                  - PM Not Complete - Out Of Time
+                  - PM Not Complete - P1 Call Out
+                  - PM Not Complete - Vendor Failed To Complete
+                  - PM Not Complete Deferred Invalid Equipment
+                  - Absorbed 
+                  - Installation
+                  - Project Support
+                  - Repaired Item
+                  - Replaced Parts
+                  - Absorbed 
+                  - Adjusted Camera
+                  - Approved / Issued
+                  - Assigned Violation To Vendor
+                  - Cleaned Equipment
+                  - No Trouble Found
+                  - Paid Violation Fine
+                  - Power Hit
+                  - Processed Payment
+                  - Reconfigured NVR / DVR Settings
+                  - Referred To EUS
+                  - Refuted Violation
+                  - Reloaded Software
+                  - Repaired Device
+                  - Repaired Equipment
+                  - Repaired Panel
+                  - Replaced Batteries
+                  - Replaced Device
+                  - Replaced Equipment
+                  - Reported To It
+                  - Reset Equipment
+                  - Reset Power Feed
+                  - Reset Reader
+                  - Unapproved / Deined
+                  - Adjusted Camera
+                  - Approved / Issued
+                  - Assigned Violation To Vendor
+                  - Cleaned Equipment
+                  - No Trouble Found
+                  - Paid Violation Fine
+                  - Power Hit
+                  - Processed Payment
+                  - Reconfigured NVR / DVR Settings
+                  - Referred To EUS
+                  - Refuted Violation
+                  - Reloaded Software
+                  - Repaired Device
+                  - Repaired Equipment
+                  - Repaired Panel
+                  - Replaced Batteries
+                  - Replaced Device
+                  - Replaced Equipment
+                  - Reported To It
+                  - Reset Equipment
+                  - Reset Power Feed
+                  - Reset Reader
+                  - Unapproved / Deined
+                  - Installation
+                  - PM Complete
+                  - Project Support
+                  - Adjusted Settings On Equipment
+                  - Replaced Item
+                  - Repaired Item
+                  - Replaced Parts
+                  - Absorbed 
+                  - Replaced Item
+                  - Repaired Item
+                  - Replaced Parts
+                  - Absorbed 
+                  - Adjusted Camera
+                  - Approved / Issued
+                  - Assigned Violation To Vendor
+                  - Cleaned Equipment
+                  - No Trouble Found
+                  - Paid Violation Fine
+                  - Power Hit
+                  - Processed Payment
+                  - Reconfigured NVR / DVR Settings
+                  - Referred To EUS
+                  - Refuted Violation
+                  - Reloaded Software
+                  - Repaired Device
+                  - Repaired Equipment
+                  - Repaired Panel
+                  - Replaced Batteries
+                  - Replaced Device
+                  - Replaced Equipment
+                  - Reported To It
+                  - Reset Equipment
+                  - Reset Power Feed
+                  - Reset Reader
+                  - Unapproved / Deined
+                  - Adjusted Camera
+                  - Approved / Issued
+                  - Assigned Violation To Vendor
+                  - Cleaned Equipment
+                  - No Trouble Found
+                  - Paid Violation Fine
+                  - Power Hit
+                  - Processed Payment
+                  - Reconfigured NVR / DVR Settings
+                  - Referred To EUS
+                  - Refuted Violation
+                  - Reloaded Software
+                  - Repaired Device
+                  - Repaired Equipment
+                  - Repaired Panel
+                  - Replaced Batteries
+                  - Replaced Device
+                  - Replaced Equipment
+                  - Reported To It
+                  - Reset Equipment
+                  - Reset Power Feed
+                  - Reset Reader
+                  - Unapproved / Deined
+                  - Adjusted Camera
+                  - Approved / Issued
+                  - Assigned Violation To Vendor
+                  - Cleaned Equipment
+                  - No Trouble Found
+                  - Paid Violation Fine
+                  - Power Hit
+                  - Processed Payment
+                  - Reconfigured NVR / DVR Settings
+                  - Referred To EUS
+                  - Refuted Violation
+                  - Reloaded Software
+                  - Repaired Device
+                  - Repaired Equipment
+                  - Repaired Panel
+                  - Replaced Batteries
+                  - Replaced Device
+                  - Replaced Equipment
+                  - Reported To It
+                  - Reset Equipment
+                  - Reset Power Feed
+                  - Reset Reader
+                  - Unapproved / Deined
+                  - Replaced Item
+                  - Repaired Item
+                  - Replaced Parts
+                  - Absorbed 
+                  - Adjusted Camera
+                  - Approved / Issued
+                  - Assigned Violation To Vendor
+                  - Cleaned Equipment
+                  - No Trouble Found
+                  - Paid Violation Fine
+                  - Power Hit
+                  - Processed Payment
+                  - Reconfigured NVR / DVR Settings
+                  - Referred To EUS
+                  - Refuted Violation
+                  - Reloaded Software
+                  - Repaired Device
+                  - Repaired Equipment
+                  - Repaired Panel
+                  - Replaced Batteries
+                  - Replaced Device
+                  - Replaced Equipment
+                  - Reported To IT
+                  - Reset Equipment
+                  - Reset Power Feed
+                  - Reset Reader
+                  - Unapproved / Deined
+                  - No Repair Required
+                  - PM Not Required - Completed on Corrective
+                  - PM Not Required - Equipment Replaced                    
+                failureCode:
+                  type: string
+                  description: Failure Code also known as Cause Type
+                  enum:
+                    - Abuse
+                    - Administrative
+                    - Alarm Code Activate
+                    - Board Failure
+                    - BVI System (IT Managed)
+                    - Camera Adjustments Bad
+                    - Camera Failure
+                    - Camera Mountings
+                    - Defective Part
+                    - Door Latch Failure
+                    - Electrical Failure
+                    - Equipment Malfunction
+                    - Hard Drive Failure
+                    - Infrastructure Issue
+                    - Motion Detection Failure
+                    - Network Card Failure
+                    - Network Issue
+                    - Network Software Issue
+                    - Panic Button Failure
+                    - Power Failure
+                    - Preventive Maintenance
+                    - Project Work
+                    - Reader Failure
+                    - Renewal
+                    - Service Call Avoided
+                    - Standard Wear And Tear
+                    - Switch / Router Issue
+                    - Total Unit Failure
+                    - User Error
+                    - Vandalism
+                    - Violation
+                notes:
+                  type: string
+                  maxLength: 1000
+                  description: Work Order Completion Notes/Comments
+                completionTimestamp:
+                  type: string
+                  format: date-time
+                  description: Timestamp of the work order completion  in the external system
+                lateCompletionReason:
+                  type: string
+                  description: Work Task Late Completion reason (API invocation past planned end date). Required field for late completion work orders'
+                  enum: 
+                    - Absorbed Work 
+                    - Funding Time Line Delay 
+                    - Parts Lead Time 
+                    - Conversion 
+              required: 
+                - notes
+                - failureCode
+                - solutionCode
+            
+      responses:
+        '200':
+          description: Work Order Notes Updated Successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/WorkOrderResponse'
+
+        '404':
+          description: Work Order not found
+          content: {}
+        '400':
+          description: Validation exception
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+      security:
+        - tririgaBasicAuth: []
+
+  '/triWorkOrder/{triWorkOrderId}/techOnsite':
+    put:
+      tags:
+        - Work Order
+      summary: >-
+        TRIRIGA_INBOUND - An event indicating  "Technician/Responsible Person" 
+        has reached onsite
+      operationId: tri-wo-technician-onsite
+      parameters:
+        - name: triWorkOrderId
+          in: path
+          description: ID of Work Order to update
+          required: true
+          schema:
+            type: string
+      requestBody:
+        content:
+          application/x-www-form-urlencoded:
+            schema:
+              type: object
+              properties:
+                arrivalTimestamp:
+                  type: string
+                  format: date-time
+                  description: Timestamp the "Technician/Responsible Person" arrived onsite
+                comments:
+                  type: string
+                  maxLength: 1000
+                  description: Optional Reason/Comments
+      responses:
+        '200':
+          description: Work Order Updated Successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/WorkOrderResponse'
+
+        '404':
+          description: Work Order not found
+          content: {}
+        '400':
+          description: Validation exception
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+      security:
+        - tririgaBasicAuth: []
+
+
+  /apiHealth:
+    get:
+      tags:
+        - API Status
+      summary: >-
+        TRIRIGA_INBOUND & TRIRIGA_OUTBOUND - Query the status of System/API
+        Health
+      operationId: api-health
+      parameters: []
+      responses:
+        '200':
+          description: Services are operating normally
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/APIHealthResponse'
+      security:
+        - tririgaBasicAuth: []
+components:
+  schemas:
+    WorkOrderResponse:
+      type: object
+      properties:
+        workOrderId:
+          type: string
+        externalWorkOrderId:
+          type: string
+        code:
+          type: string
+        message:
+          type: string
+    ErrorResponse:
+      type: object
+      properties:
+        errorCode:
+          type: integer
+          format: int32
+        errorType:
+          type: string
+          enum:
+            - FATAL
+            - WARN
+            - INFO
+        errorMessage:
+          type: string
+    LocationDetails:
+      type: object
+      required:
+        - propertyCode
+        - address
+      properties:
+        propertyCode:
+          type: string
+          description: A unique ID for each property (building/store)
+        propertyName:
+          type: string
+        phone:
+          type: string
+          description: Store Phone
+        fax:
+          type: string
+          description: Store Fax
+        address:
+          type: string
+        city:
+          type: string
+        state:
+          type: string
+        district:
+          type: string
+        zip:
+          type: string
+        locationStyle:
+          type: string
+        shutterControl:
+          type: string
+        leedDesignation:
+          type: string
+        emsDesignation:
+          type: string
+        territory:
+          type: string
+        shopID:
+          type: string
+        secondaryUse:
+          type: string
+        vzPropertySupervisor:
+          $ref: '#/components/schemas/ContactDetails'
+        extPropertySupervisor:
+          $ref: '#/components/schemas/ContactDetails'
+    WorkOrder:
+      type: object
+      required:
+        - externalWorkOrderId
+        - requestedBy
+        - requestedPhone
+        - priority
+        - requestDate
+        - workType
+        - problemType
+        - type
+        - locationDetails
+      properties:
+        externalWorkOrderId:
+          type: string
+          description: Unique ID of Work Order(Tririga)
+        requestedBy:
+          description: Requested By
+          type: string
+        requestedPhone:
+          description: Cell Phone of the Requestor
+          type: string
+          format: phone
+        requestedEmail:
+          description: Email of the Requestor
+          type: string
+          format: email
+        requestDate:
+          type: string
+          format: date-time
+          description: >-
+            date-time notation as defined by RFC 3339, section 5.6
+            https://xml2rfc.tools.ietf.org/public/rfc/html/rfc3339.html#rfc.section.5.6
+        workType:
+          type: string
+          description: Work Type
+          enum:
+            - ADMINISTRATIVE NON-PRODUCTIVE
+            - ADMINISTRATIVE SERVICES
+            - ANTENNA TOWER STRUCTURE
+            - CONTRACTOR IN BUILDING
+            - COOLING TOWERS
+            - DECOMMISSING PROPERTY
+            - DISASTER PREP
+            - ELECTRICAL
+            - ELECTRONIC
+            - ELEVATORS
+            - EMERG RESPONSE TRAILER
+            - EMERGENCY EVENT
+            - EMERGENCY EVENT JANITORIAL
+            - ENVIRONMENTAL COMPLIANCE
+            - FIRE PROTECTION
+            - FURNITURE - PLANNING
+            - GROUNDS
+            - HANG
+            - HVAC
+            - INFRASTRUCTURE - EXTERIOR
+            - INFRASTRUCTURE - INTERIOR
+            - INSIDE HUT PROGRAM
+            - INSPECTIONS
+            - JANITORIAL SERVICES
+            - JANITORIAL SUPPLIES
+            - LIGHTING
+            - NETWORK INQUIRES
+            - OTHER / MISCELLANOUS
+            - PLUMBING
+            - RETAIL FIXTURES
+            - ROOFING
+            - SECURITY
+            - SHREDDING
+            - SIGNAGE
+            - TANKS AND GENERATORS
+            - VEHICLE ROAD SERVICE
+            - VENDOR - FOOD AND CAFETERIA SERVICES
+        problemType:
+          type: string
+          enum:
+            - ACOUSTIC PANELS - CEILING
+            - ACOUSTIC PANELS - WALL
+            - ADD ADDITIONAL CONSOLE(S)
+            - ADD LIGHTS
+            - ADMINISTRATIVE TIME
+            - AFTER HOURS OPERATION - FUTURE
+            - AIR CONDITIONING
+            - AISLE FIXTURES
+            - ALARM MONITORING SYSTEM
+            - ANTENNA TOWER STRUCTURE
+            - APPLIANCES (NON - INDUSTRIAL EQUIPMENT)
+            - ARCHITECT - DRAWING AND SKETCHES
+            - ASBESTOS ABATEMENT
+            - ASSET VERIFCATION
+            - AUDIO / VISUAL REPAIR
+            - AUTOMATIC SLIDING DOORS
+            - AUTOMOBILE ACCIDENT
+            - AWNINGS REPAIR /REPLACE
+            - BACK OF HOUSE COUNTER
+            - BACK OF HOUSE SHELVING
+            - BACKFLOW INSPECTIONS
+            - BANNERS
+            - BOARD UP
+            - BUILDING REPAIR
+            - BUILDING TOUR
+            - CABLE VAULT GAS
+            - 'CAFE EQUIPMENT - STOVE, GRILL, ETC'
+            - CALIFORNIA WASTE RECYCLING SERVICES
+            - CAPITAL NOTIFICATION
+            - CAR CHARGING STATION
+            - CAR FLEET (FOR INTERNATIONAL USE ONLY)
+            - CARD ACCESS
+            - CATERING
+            - CEILING REPAIR
+            - CEILING TILE REPLACEMENT
+            - CEV REPAIRS
+            - CHANGE SERVICE FREQUENCY
+            - CHECKLIST SITE INSPECTIONS
+            - CITY INSPECTORS
+            - CLEANING - CARPET
+            - CLEANING HARD SURFACE
+            - CLEANING REFRIGERATOR
+            - CLEANING SUPPLIES
+            - CLEANING TILE
+            - CLEANING UPHOLSTERY
+            - CLEANING VCT
+            - CLEANING WINDOWS
+            - CLOCK REPLACEMENT / REPAIR
+            - CO / NOC ALARM DISCREPANCY
+            - COAT RACKS
+            - COFFEE EQUIPMENT REPAIR/REPLACEMENT
+            - COFFEE SERVICE
+            - COMFORT (TOO HOT / TOO COLD)
+            - COMMERCIAL POWER
+            - CONTRACTOR IN BUILDING
+            - CONTROLS / DDC
+            - COOLING TOWERS CLEANING DISINFECTION
+            - COOLING TOWERS MAINTENANCE
+            - CORK BOARDS
+            - CORPORATE SCENTING
+            - COVID19 CLEANING
+            - CRADLEPOINT
+            - CUBICLE DESK LIGHTING
+            - CUSTOMER - LOCKERS
+            - CUSTOMER - VENDING
+            - DARKCLEAN
+            - DAY INVENTORY SAFE
+            - DECOMMISSIONING
+            - DISASTER EQUIPMENT MOVE OR RELOCATE
+            - DISPENSER - HAND SANITIZER
+            - DISPENSER - PAPER PRODUCTS
+            - DISPENSER - SOAP
+            - DISPENSERS
+            - DISPLAY WALLS
+            - DOOR MATS
+            - DOOR PHONE / INTERCOM
+            - DRAINS/GUTTERS/DOWNSPOUTS
+            - EARTHQUAKE
+            - EARTHQUAKE CLEAN UP
+            - ELECTRIC HRDW(NON CARD ACCESS)
+            - ELECTRICAL
+            - ELEVATORS / DUMBWAITERS
+            - EMERGENCY ALARM SOUNDING
+            - EMERGENCY CLEAN UP
+            - EMERGENCY LIGHTING
+            - EMS LIGHTING
+            - EMS REMOVAL
+            - EMS SECURITY
+            - ENTRAPMENT
+            - ENVIRONMENT KITS - SPILL KITS
+            - ENVIRONMENTAL / BUNDLED
+            - ENVIRONMENTAL STUDIES
+            - EQUIPMENT INVENTORY UPDATE
+            - ERGONOMIC EVALUATION
+            - ERGONOMIC NEED WITH DR. NOTE / WORKPLACE ACCOMMODATION
+            - ESCALATORS
+            - EVENT SET - UP/AV REQUEST - FOR TODAY
+            - EVENT SET - UP/AV REQUEST - FUTURE REQUEST
+            - EXIT SIGNS
+            - EXTERIOR DOORS AND CLOSURES
+            - EXTERIOR LIGHT ASSESSMENT
+            - EXTERIOR LIGHT ASSESSMENT (SECURITY)
+            - EYE WASH STATION
+            - FENCES AND GATES
+            - FIRE / ALARM
+            - FIRE DRILL
+            - FIRE EXTINGUISHERS
+            - FIRE PANEL INSPECTION / REPAIR
+            - FIRE SAFETY REQUESTS / VIOLATIONS
+            - FIRE SYSTEM
+            - FITNESS CENTER EQUIPMENT
+            - FLOOD DAMAGE
+            - FLOOD DAMAGE CLEAN UP
+            - FLOORS - CARPET
+            - FLOORS - CERAMIC
+            - FLOORS - CONCRETE
+            - FLOORS - DECAL REMOVAL
+            - FLOORS - HELIX/WALK OFF
+            - FLOORS - TILE
+            - FLOORS - VCT
+            - FOOT RESTS
+            - FREIGHT
+            - FRP/ACROVYN/HARDENING REPAIR REPLACE
+            - FUEL
+            - FUEL / OIL REQUESTS
+            - FUEL CELLS
+            - FUEL TANK
+            - FUEL TANK (LEAKS ONLY)
+            - GAME EQUIPMENT
+            - GAS OTHER
+            - GENERATOR / ENGINE - STATIONARY
+            - GENERATOR RUN
+            - GENERATORS / PORTABLE
+            - GLASS REPLACEMENT
+            - HAZARD MATERIALS
+            - HEATING
+            - HIGH HUMIDITY
+            - HIGH TEMPERATURE
+            - HOISTS / WINCHES
+            - HOOD AND DUCT CLEANING
+            - HVAC
+            - HVAC ENERGY MGNT SYSTEMS
+            - ICE MACHINES
+            - IN STORE MUSIC SYSTEM
+            - IN STORE SPEAKERS
+            - INDOOR PLANT MAINTENANCE
+            - INSPECTIONS
+            - INTERIOR DOORS AND CLOSURES
+            - INTRUSION
+            - IRRIGATION SYSTEMS / LAWN SPR
+            - JANITORIAL/CLEANING
+            - KEYBOARD TRAYS
+            - KEYS (NON FURNITURE)
+            - KITCHEN EQUIPMENT
+            - LANDSCAPE PLANT REPLACEMENT
+            - LANDSCAPING / LAWN / GROUNDS KEEPING
+            - LIGHT FIXTURE HANGING (CEILING)
+            - LIGHTING INTERIOR - CO/EQUIP
+            - LIGHTING INTERIOR - NON - CO/EQP
+            - LIGHTING PARKING LOT
+            - LIGHTING REPAIR EXTERIOR
+            - LIGHTS - DISPLAY FIXTURES
+            - LIGHTS - LIGHT BOXES
+            - LIGHTS CEILING SPOTS OR TROFFERS
+            - LIGHTS OUT ENERGY MANAGEMENT SYSTEM (EMS)
+            - LIGHTS OUT EXTERIOR
+            - LIGHTS TRACK
+            - LOCK KEY REQUEST
+            - LOCK MULTI POINT LOCK
+            - LOCK REKEY EXTERIOR LOCK
+            - LOCK REKEY STORE LOCK
+            - LOCKS (NON FURNITURE)
+            - 'LOCKS AND KEYS DESKS, CUBICLE, CABINETS ONLY'
+            - LOST AND FOUND (FOR INTERNATIONAL USE ONLY)
+            - LOW FUEL ALARM
+            - LOW HUMIDITY
+            - LOW TEMPERATURE
+            - MAIL LOST (FOR INTERNATIONAL USE ONLY)
+            - MATERIAL ORDERING/RECEIVING
+            - MEETING
+            - MESSAGE
+            - MILLWORK BACK OF HOUSE
+            - MILLWORK SALES FLOOR
+            - MONITOR ARMS
+            - MOVES - NON FURNITURE(BOX ETC.)
+            - NEAT / CLEAN / SAFETY INSPECTIONS
+            - 'NEW COMERS, LEAVERS (FOR INTERNATIONAL USE ONLY)'
+            - 'NEW DESK, CUBICLE REQUEST/ACCESSORIES'
+            - NEW PROJECT - DELIVER ADDITIONAL BINS
+            - NEW PROJECT - DELIVER BINS
+            - NOTIFICATION
+            - NYC VIOLATION
+            - ODORS / SMELLS / FUMES / IAQ
+            - >-
+              ON CALL SERVICE (EMPTY FULL CONSOLE BEFORE NEXT SCHEDULED SERVICE
+              DATE)
+            - OTHER/MISCELLANEOUS
+            - OVERHEAD DOORS
+            - PAINTING EXTERIOR
+            - PAINTING INTERIOR
+            - PAPER PRODUCTS
+            - PARKING LOT REPAIRS/STRIPING
+            - PEEP HOLE REPAIR /REPLACE
+            - PEG BOARD
+            - PEST CONTROL
+            - PHONE TABLE
+            - PICTURES
+            - PLANNED ACTIVITY / ALARMS OUT
+            - PLUMBING
+            - PONDS / LAKES
+            - PORTABLE TOLIET PLACMENT
+            - POSTAGE / COURIER
+            - POWER LOAD CURTAILMENT
+            - POWERWASHING
+            - PRESSURE VALVE INSPECTION / REPLACE
+            - PROJECT ASSIGNMENT
+            - PROJECT BIN DAMAGED (REPLACE)
+            - PROJECT BIN IS FULL (EMPTY AND REPLACE)
+            - PROJECT OTHER (DESCRIBE IN ORDER INSTRUCTIONS FIELD)
+            - PROJECT REMOVE BIN (EMPTY AND REMOVE)
+            - RECYCLING / BINS (INSIDE)
+            - RECYLING (OUTSIDE)
+            - RELOCATE CONSOLES (NEW ADDRESS)
+            - REMOVAL / PAINT / MOLD / SPILL / OIL / FUEL
+            - REMOVE CONSOLES
+            - REMOVE VANDALISM/GRAFFITI
+            - REPAIR DESK OR CUBICLE
+            - REPLACE DAMAGED CONSOLE OR LOCK
+            - REPLACE SAFE KEY
+            - REPORT A SECURITY ISSUE
+            - REQUEST FOR INFORMATION
+            - REQUESTS - OTHER (DESCRIBE IN ORDER INSTRUCTIONS FIELD)
+            - REQUESTS FOR ADDITIONAL PANIC BUTTONS
+            - RESTROOM REPAIR (NON - PLUMBING)
+            - REVERSE OSMOSIS SYSTEMS
+            - REVOLVING DOORS
+            - ROOF ACCESS REQUEST - EMERG REPAIR ONLY
+            - ROOF ACCESS REQUEST - PLANNED INSTALLATION OR MAINTENANCE
+            - ROOF INSPECTIONS
+            - ROOF LEAK
+            - ROOFING
+            - ROOM DEODORIZER
+            - SAFES
+            - SALES COUNTER
+            - SALT SUPPLIES
+            - SANDBAGS
+            - SECURITY ALARM EQUIPMENT
+            - SECURITY ALARM PERMIT RENEWAL
+            - SECURITY COMMUNICATION ERRORS
+            - 'SECURITY DVRS, VCR'
+            - SECURITY FILM REPAIR / REPLACE
+            - SECURITY GUARD/STATION
+            - SECURITY STATION CCTV / CAMERA
+            - SECURITY SYSTEMS REMOVAL / KEYS / LOCK BOX / VIDEO
+            - SECURITY TIE IN EMS
+            - SECURITY WINDOW SHIELD
+            - SERVICE / REPAIR
+            - >-
+              SET UP NEW RECURRING SERVICE / DELIVER NEW CONSOLE(S) (CONSIDER
+              BINS
+            - SHIFT COVERAGE
+            - SHREDDING SERVICE NOT COMPLETED (ALL OR INDIVIDUAL BINS MISSED)
+            - SHUTTER / MALL GATES
+            - SHUTTLE SERVICE
+            - SIDEWALK/WALKWAY/TRAIL REPAIRS
+            - SIGN CLEANING
+            - SIGN EXTERIOR INSTALLATION
+            - SIGN EXTERIOR REPAIR
+            - SIGN INTERIOR INSTALLATION
+            - SIGN INTERIOR NEON
+            - SIGN INTERIOR REPAIR
+            - SIGN REBRANDING
+            - SIGN REPAIR EMS
+            - SIGN TICKER BOARD
+            - SIGNAGE / GRAPHICS / ART
+            - SLAT WALL
+            - SNOW AND ICE REMOVAL
+            - SOLAR POWER
+            - SPACE REQUEST - NEW/CHANGE
+            - SPRINKLERS / SUPPRESSION SYST
+            - SUMP PUMP / SEPTIC SYSTEMS
+            - SURGE POWER
+            - TABLET WALL
+            - TELCO ROOM FACILITIES ISSUES
+            - TELEVISION ASSOC EQUIP
+            - TEMPORARY COOLING UNITS
+            - TEMPORARY HEATING UNITS
+            - THERMOSTAT STAT ISSUES
+            - TOUCHLESS DOOR OPENERS
+            - TOWER LIGHTING
+            - TRAINING
+            - TRANSFER SWITCH/SWITCHGEAR
+            - TRASH CONTAINERS/CONTRACTED DUMPSTER
+            - TRASH REMOVAL
+            - TREE REMOVAL
+            - TRUCK MAINTENANCE
+            - UPS - BLDG BACKUP\: NON DATA CTR
+            - UPS - COMPUTERS - BLDG BACKUP
+            - VEHICLE MAINTENANCE
+            - VENDING REPAIRS
+            - VENDING SUPPLIES
+            - VENDOR ASSISTANCE
+            - WALLPAPER REPAIR/REMOVE
+            - WALLS
+            - WATER COOLER
+            - WATER DAMAGE
+            - WATER DAMAGE CLEAN UP
+            - WATER DIVERSION (HVAC)
+            - WATER DIVERSION (ROOFING)
+            - WATER FILTER MAINTENANCE
+            - WATER IN AHU PAN / UNDER FLOOR
+            - WATER QUALITY
+            - WATER TREATMENT HVAC
+            - WHITEBOARDS
+            - WIND / HURRICANE / TORNADO
+            - WIND / HURRICANE / TORNADO CLEAN UP
+            - WINDOW
+            - WINDOW BLIND AND SHADES
+            - WINDOW TINTING AND TINT REPAIR
+            - WINDOWS - NON GLASS
+            - WINDSHIELD TIME
+        type:
+          type: string
+          enum:
+            - PM
+            - CM
+        priority:
+          type: integer
+          format: int32
+          minimum: 1
+          maximum: 7
+          description: 1 - 7 => Critical - Low
+        plannedEndDate:
+          type: string
+          format: date-time
+        notToExceed:
+          type: number
+          format: double
+          description: A hard cap on the Pay amount of the Work Order
+        requestor:
+          $ref: '#/components/schemas/ContactDetails'
+        requestedFor:
+          $ref: '#/components/schemas/ContactDetails'
+        responsiblePerson:
+          $ref: '#/components/schemas/ContactDetails'
+        workOrderDescription:
+          type: string
+          maxLength: 1000
+        additionalInstructions:
+          type: string
+          maxLength: 1000
+        locationDetails:
+          $ref: '#/components/schemas/LocationDetails'
+
+    APIHealthResponse:
+      type: object
+      properties:
+        lastUpdatedTime:
+          type: string
+          format: date-time
+        status:
+          type: string
+          default: Services are operating normally
+    ContactDetails:
+      type: object
+      properties:
+        name:
+          maxLength: 1000
+          type: string
+        email:
+          type: string
+          format: email
+        phone:
+          type: string
+          format: phone
+  securitySchemes:
+    tririgaBasicAuth:
+      type: http
+      scheme: basic

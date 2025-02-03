@@ -1,0 +1,83 @@
+{
+	"C131256": {
+		"name": "CUSHMAN",
+		"oAuthConfig": {
+			"url": "https://integrations-uat.cushwake.com/cw-work-order/api/v2/auth/token",
+			"requestPayload": {
+				"client_id": "AYgmyJuljIFH0dmAUXuOITl9prEQL0Sm",
+				"client_secret": "Oh6rOkhpRdEpRBA_AJH7qZExk8PtSIB9DbmYAIqxVaJuKd0911IgW_m2nte_ISXz"
+			}
+		},
+		"workOrderEndpointUrl": "https://integrations-uat.cushwake.com/cw-verizon-work-order/api/workOrder",
+		"apiHealthEndpointUrl": "https://integrations-uat.cushwake.com/cw-verizon-work-order/health"
+	},
+	"C120297": {
+		"name": "CALICO",
+		"oAuthConfig": {
+			"url": "https://calicotestapi.fieldpointonline.com/Authorize",
+			"requestPayload": {
+				"client_id": "FIELDPOINT_VZ_TRIRIGA",
+				"client_secret": "9eOpTMe9GMjV7RU28VP2Tb+j/WzS9EU5"
+			}
+		},
+		"workOrderEndpointUrl": "https://calicotestapi.fieldpointonline.com/workOrder",
+		"apiHealthEndpointUrl": "https://calicotestapi.fieldpointonline.com/apiHealth"
+	},
+	"C122252": {
+		"name": "STAR ASSET SECURITY",
+		"oAuthConfig": {
+			"url": "https://vzw-tririga-staging.ion247.com/api/auth/authorize",
+			"requestPayload": {
+				"client_id": "xefhph",
+				"client_secret": "9BxQFKNLZGosT5EiEB0xlAgac"				
+			}
+		},
+		"workOrderEndpointUrl": "https://vzw-tririga-staging.ion247.com/api/workOrder",
+		"apiHealthEndpointUrl": "https://vzw-tririga-staging.ion247.com/api/apihealth"
+	},
+	"1509885-VREPAIR": {
+		"name": "vRepair",
+		"httpHeader": {
+			"apiKey": "iGqm5q4JfgpLGo4GkO8AXDme3ZfaZ32C",
+			"Content-Type": "text/xml"
+		},
+		"workOrderEndpointUrl": "",
+		"apiHealthEndpointUrl": "https://api-secure-uat.verizon.com/aavb-vrepair-tririga-sit2"
+	},
+	"C17092": {
+		"name": "ASSOCIATED FIRE PROTECTION",
+		"oAuthConfig": {
+			"url": "https://calicotestapi.fieldpointonline.com/Authorize",
+			"requestPayload": {
+				"client_id": "FIELDPOINT_VZ_TRIRIGA",
+				"client_secret": "9eOpTMe9GMjV7RU28VP2Tb+j/WzS9EU5"
+			}
+		},
+		"workOrderEndpointUrl": "",
+		"apiHealthEndpointUrl": ""
+	},
+	"C88189": {
+		"name": "SOLID CARE",
+		"oAuthConfig": {
+			"url": "https://solidcare--uat.sandbox.my.salesforce.com/services/oauth2/token",
+			"requestPayload": {
+				"client_id": "3MVG9kP7SomkPYbKF1jBu5mkj4M925zNTRDyKG3nB6mnDBLhU3.7QCb_00Yk.7dLtBLi4d4_M_eS8tNXlYsZa",
+				"client_secret": "0D2FE5E361BC0BB9D2921CFC3F4DA0F954DFAA0B2A80C6A2C9F0F45E429DC17B"
+			}
+		},
+		"workOrderEndpointUrl": "https://solidcare--uat.sandbox.my.salesforce.com/services/apexrest/Tririga/workOrder",
+		"apiHealthEndpointUrl": ""
+	},
+	"C97698": {
+		"name": "LANE VALENTE",
+		"oAuthConfig": {
+			"url": "https://calicotestapi.fieldpointonline.com/Authorize",
+			"requestPayload": {
+				"client_id": "FIELDPOINT_VZ_TRIRIGA",
+				"client_secret": "9eOpTMe9GMjV7RU28VP2Tb+j/WzS9EU5"
+			}
+		},
+		"workOrderEndpointUrl": "",
+		"apiHealthEndpointUrl": ""
+	}
+}
