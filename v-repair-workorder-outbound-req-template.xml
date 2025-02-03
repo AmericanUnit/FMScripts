@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<UpdateRequestComments>
+  <comments>
+    <Comments>
+      <VRepairWONum>%s</VRepairWONum>
+	  <TRIRIGAWorkTaskNum>%s</TRIRIGAWorkTaskNum>
+      <CommentDateTime>%s</CommentDateTime>
+      <CommentText>%s</CommentText>
+      <CommentType>%s</CommentType>
+	  <CreatedBy>%s</CreatedBy>
+    </Comments>
+  </comments>
+</UpdateRequestComments>
